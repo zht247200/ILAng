@@ -123,6 +123,8 @@ public:
   /// Return the named child-ILA; return NULL if not registered.
   const InstrLvlAbsPtr find_child(const Symbol& name) const;
 
+  const InstrSeqPtr& instr_seq() const { return instr_seq_; }
+
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
   /// \param[in] input_var pointer to the input variable being added.
@@ -302,7 +304,7 @@ private:
   /// The set of child-ILAs.
   InstrLvlAbsMap childs_;
   // child-instr sequencing
-  InstrSeq instr_seq_;
+  InstrSeqPtr instr_seq_ = NULL;
 
   /// Specification/implementation.
   bool is_spec_ = true;

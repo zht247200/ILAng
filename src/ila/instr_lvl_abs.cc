@@ -287,7 +287,10 @@ void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
                              const ExprPtr cnd) {
   // XXX src, dst should already registered.
   auto cnd_simplified = Unify(cnd);
-  instr_seq_.AddTran(src, dst, cnd_simplified);
+  if (!instr_seq_) {
+    instr_seq_ = InstrSeq::New();
+  }
+  instr_seq_->AddTran(src, dst, cnd_simplified);
 }
 
 std::string InstrLvlAbs::GetRootName() const {
@@ -326,7 +329,6 @@ void InstrLvlAbs::InitObject() {
   inits_.clear();
   instrs_.clear();
   childs_.clear();
-  instr_seq_.clear();
   // shared
   if (parent_) {
     expr_mngr_ = parent_->expr_mngr();
