@@ -4,10 +4,11 @@
 #ifndef ILANG_TARGET_PLAINC_ILA_TO_PLAINC_H__
 #define ILANG_TARGET_PLAINC_ILA_TO_PLAINC_H__
 
-#include <ilang/ila/instr_lvl_abs.h>
-
-#include <memory>
 #include <string>
+#include <unordered_map>
+
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/target-plainc/plainc_ir.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -45,6 +46,8 @@ private:
   // ------------------------- METHODS -------------------------------------- //
   /// Convert an uninterpreted function.
   bool ConvertFunc();
+
+  PCVarPtr ConvertVar(const ExprPtr& e);
 
 }; // class Ila2PlainC
 
