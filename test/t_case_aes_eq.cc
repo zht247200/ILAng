@@ -1,8 +1,8 @@
 /// file
 /// Unit test for the AES Verlog vs C equivalence checking.
 
+#include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ilang++.h>
-#include <ilang/verification/abs_knob.h>
 #include <ilang/verification/eq_check_crr.h>
 
 #include <ilang/util/fs.h>

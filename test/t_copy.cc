@@ -1,7 +1,7 @@
 /// \file
 /// Unit tests for exporting and importing ILA portables.
 
-#include <ilang/verification/abs_knob.h>
+#include <ilang/ila-mngr/u_abs_knob.h>
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"

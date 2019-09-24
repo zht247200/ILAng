@@ -1,7 +1,7 @@
 /// \file
-/// Source for a collection of ILA helpers.
+/// A collection of ILA helpers.
 
-#include <ilang/verification/abs_knob.h>
+#include <ilang/ila-mngr/u_abs_knob.h>
 
 #include <functional>
 
@@ -10,6 +10,34 @@
 #include <ilang/verification/rewrite_ila.h>
 
 namespace ilang {
+
+namespace AbsKnob {
+
+ExprPtr DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp) {
+  ILA_ASSERT(inp->is_var()) << "Creating input from non-var Expr.";
+  if (inp->is_bool()) {
+    return m->NewBoolInput(inp->name().str());
+  } else if (inp->is_bv()) {
+    return m->NewBvInput(inp->name().str(), inp->sort()->bit_width());
+  } else {
+    ILA_ASSERT(inp->is_mem()) << "Unknown sort of " << inp;
+    return m->NewMemInput(inp->name().str(), inp->sort()->addr_width(),
+                          inp->sort()->data_width());
+  }
+}
+
+ExprPtr DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt) {
+  ILA_ASSERT(stt->is_var()) << "Creating state from non-var Expr.";
+  if (stt->is_bool()) {
+    return m->NewBoolState(stt->name().str());
+  } else if (stt->is_bv()) {
+    return m->NewBvState(stt->name().str(), stt->sort()->bit_width());
+  } else {
+    ILA_ASSERT(stt->is_mem()) << "Unkown sort of " << stt;
+    return m->NewMemState(stt->name().str(), stt->sort()->addr_width(),
+                          stt->sort()->data_width());
+  }
+}
 
 class FuncObjInsertExprVar {
 public:
@@ -30,9 +58,7 @@ class FuncObjInsertILAInp {
 public:
   FuncObjInsertILAInp(ExprSet& vars) : vars_(vars) {}
 
-  void operator()(const InstrLvlAbsCnstPtr m) const {
-    AbsKnob::InsertInp(m, vars_);
-  }
+  void operator()(const InstrLvlAbsCnstPtr m) const { InsertInp(m, vars_); }
 
 private:
   ExprSet& vars_;
@@ -42,9 +68,7 @@ class FuncObjInsertILAStt {
 public:
   FuncObjInsertILAStt(ExprSet& vars) : vars_(vars) {}
 
-  void operator()(const InstrLvlAbsCnstPtr m) const {
-    AbsKnob::InsertStt(m, vars_);
-  }
+  void operator()(const InstrLvlAbsCnstPtr m) const { InsertStt(m, vars_); }
 
 private:
   ExprSet& vars_;
@@ -54,9 +78,7 @@ class FuncObjInsertILAInstr {
 public:
   FuncObjInsertILAInstr(InstrVec& instrs) : instrs_(instrs) {}
 
-  void operator()(const InstrLvlAbsCnstPtr m) const {
-    AbsKnob::InsertInstr(m, instrs_);
-  }
+  void operator()(const InstrLvlAbsCnstPtr m) const { InsertInstr(m, instrs_); }
 
 private:
   InstrVec& instrs_;
@@ -64,7 +86,7 @@ private:
 }; // class FuncOjbInsertILAInstr
 
 /******************************************************************************/
-ExprSet AbsKnob::GetVar(const ExprPtr e) {
+ExprSet GetVar(const ExprPtr e) {
   auto vars = ExprSet();
   auto func = FuncObjInsertExprVar(vars);
   e->DepthFirstVisit(func);
@@ -72,106 +94,106 @@ ExprSet AbsKnob::GetVar(const ExprPtr e) {
 }
 
 /******************************************************************************/
-void AbsKnob::InsertStt(const InstrCnstPtr instr, ExprSet& vars) {
+void InsertStt(const InstrCnstPtr instr, ExprSet& vars) {
   auto host = instr->host();
   ILA_NOT_NULL(host);
   InsertStt(host, vars);
 }
 
-void AbsKnob::InsertSttTree(const InstrCnstPtr instr, ExprSet& vars) {
+void InsertSttTree(const InstrCnstPtr instr, ExprSet& vars) {
   auto host = instr->host();
   ILA_NOT_NULL(host);
   InsertSttTree(host, vars);
 }
 
 /******************************************************************************/
-void AbsKnob::InsertVar(const InstrLvlAbsCnstPtr m, ExprSet& vars) {
+void InsertVar(const InstrLvlAbsCnstPtr m, ExprSet& vars) {
   InsertStt(m, vars);
   InsertInp(m, vars);
 }
 
-void AbsKnob::InsertStt(const InstrLvlAbsCnstPtr m, ExprSet& stts) {
+void InsertStt(const InstrLvlAbsCnstPtr m, ExprSet& stts) {
   for (decltype(m->state_num()) i = 0; i != m->state_num(); i++) {
     stts.insert(m->state(i));
   }
 }
 
-void AbsKnob::InsertInp(const InstrLvlAbsCnstPtr m, ExprSet& inps) {
+void InsertInp(const InstrLvlAbsCnstPtr m, ExprSet& inps) {
   for (decltype(m->input_num()) i = 0; i != m->input_num(); i++) {
     inps.insert(m->input(i));
   }
 }
 
-void AbsKnob::InsertVarTree(const InstrLvlAbsCnstPtr top, ExprSet& vars) {
+void InsertVarTree(const InstrLvlAbsCnstPtr top, ExprSet& vars) {
   InsertSttTree(top, vars);
   InsertInpTree(top, vars);
 }
 
-void AbsKnob::InsertSttTree(const InstrLvlAbsCnstPtr top, ExprSet& stts) {
+void InsertSttTree(const InstrLvlAbsCnstPtr top, ExprSet& stts) {
   auto f = FuncObjInsertILAStt(stts);
   top->DepthFirstVisit(f);
 }
 
-void AbsKnob::InsertInpTree(const InstrLvlAbsCnstPtr top, ExprSet& inps) {
+void InsertInpTree(const InstrLvlAbsCnstPtr top, ExprSet& inps) {
   auto f = FuncObjInsertILAInp(inps);
   top->DepthFirstVisit(f);
 }
 
-ExprSet AbsKnob::GetVar(const InstrLvlAbsCnstPtr m) {
+ExprSet GetVar(const InstrLvlAbsCnstPtr m) {
   auto vars = ExprSet();
   InsertVar(m, vars);
   return vars;
 }
 
-ExprSet AbsKnob::GetStt(const InstrLvlAbsCnstPtr m) {
+ExprSet GetStt(const InstrLvlAbsCnstPtr m) {
   auto stts = ExprSet();
   InsertStt(m, stts);
   return stts;
 }
 
-ExprSet AbsKnob::GetInp(const InstrLvlAbsCnstPtr m) {
+ExprSet GetInp(const InstrLvlAbsCnstPtr m) {
   auto inps = ExprSet();
   InsertInp(m, inps);
   return inps;
 }
 
-ExprSet AbsKnob::GetVarTree(const InstrLvlAbsCnstPtr top) {
+ExprSet GetVarTree(const InstrLvlAbsCnstPtr top) {
   auto vars = ExprSet();
   InsertVarTree(top, vars);
   return vars;
 }
 
-ExprSet AbsKnob::GetSttTree(const InstrLvlAbsCnstPtr top) {
+ExprSet GetSttTree(const InstrLvlAbsCnstPtr top) {
   auto stts = ExprSet();
   InsertSttTree(top, stts);
   return stts;
 }
 
-ExprSet AbsKnob::GetInpTree(const InstrLvlAbsCnstPtr top) {
+ExprSet GetInpTree(const InstrLvlAbsCnstPtr top) {
   auto inps = ExprSet();
   InsertInp(top, inps);
   return inps;
 }
 
-void AbsKnob::InsertInstr(const InstrLvlAbsCnstPtr m, InstrVec& instrs) {
+void InsertInstr(const InstrLvlAbsCnstPtr m, InstrVec& instrs) {
   for (decltype(m->instr_num()) i = 0; i != m->instr_num(); i++) {
     instrs.insert(instrs.end(), m->instr(i));
   }
 }
 
-void AbsKnob::InsertInstrTree(const InstrLvlAbsCnstPtr top, InstrVec& instrs) {
+void InsertInstrTree(const InstrLvlAbsCnstPtr top, InstrVec& instrs) {
   auto f = FuncObjInsertILAInstr(instrs);
   top->DepthFirstVisit(f);
 }
 
-InstrVec AbsKnob::GetInstrTree(const InstrLvlAbsCnstPtr m) {
+InstrVec GetInstrTree(const InstrLvlAbsCnstPtr m) {
   auto instrs = InstrVec();
   InsertInstrTree(m, instrs);
   return instrs;
 }
 
 /******************************************************************************/
-ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
+ExprPtr Rewrite(const ExprPtr e, const ExprMap& rule) {
   ILA_ASSERT(e) << "Rewriting NULL pointer";
   auto func = FuncObjRewrExpr(rule);
   // rewrite all sub-trees
@@ -182,11 +204,11 @@ ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
   return rewr;
 }
 
-void AbsKnob::RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
-                           const ExprMap& expr_map) {
+void RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
+                  const ExprMap& expr_map) {
   // decode
   auto d_src = src->decode();
-  auto d_dst = AbsKnob::Rewrite(d_src, expr_map);
+  auto d_dst = Rewrite(d_src, expr_map);
   dst->set_decode(d_dst);
 
   // update
@@ -194,14 +216,14 @@ void AbsKnob::RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
   for (auto& state_name : updated_states) {
     auto update_src = src->update(state_name);
     if (update_src) {
-      auto update_dst = AbsKnob::Rewrite(update_src, expr_map);
+      auto update_dst = Rewrite(update_src, expr_map);
       dst->set_update(state_name, update_dst);
     }
   }
 }
 
 // this function will change the input ! You can copy it first.
-void AbsKnob::FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
+void FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
   ILA_NOT_NULL(ila_ptr_);
 
   // let's first record all the child's input/states
@@ -227,8 +249,7 @@ void AbsKnob::FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
   ila_ptr_->DepthFirstVisitPrePost(flattener);
 }
 
-InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
-                                     const std::string& name) {
+InstrLvlAbsPtr ExtrDeptModl(const InstrPtr instr, const std::string& name) {
   ILA_NOT_NULL(instr);
   ILA_NOT_NULL(instr->host());
 
@@ -270,8 +291,8 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
   return dst;
 }
 
-InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
-                                    const std::string& dst_name) {
+InstrLvlAbsPtr CopyIlaTree(const InstrLvlAbsCnstPtr src,
+                           const std::string& dst_name) {
   ILA_NOT_NULL(src);
   ILA_WARN_IF(src->parent()) << "Copying non-root ILA " << src;
 
@@ -288,9 +309,9 @@ InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
 }
 
 /******************************************************************************/
-void AbsKnob::DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
-                      ExprMap& expr_map) {
-  auto inps = AbsKnob::GetInp(src);
+void DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+             ExprMap& expr_map) {
+  auto inps = GetInp(src);
   for (auto it = inps.begin(); it != inps.end(); it++) {
     // declare new input if not exist (not parent states)
     auto inp_src = *it;
@@ -305,9 +326,9 @@ void AbsKnob::DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
   }
 }
 
-void AbsKnob::DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
-                      ExprMap& expr_map) {
-  auto stts = AbsKnob::GetStt(src);
+void DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+             ExprMap& expr_map) {
+  auto stts = GetStt(src);
   for (auto it = stts.begin(); it != stts.end(); it++) {
     auto stt_src = *it;
     auto stt_dst = dst->find_state(stt_src->name());
@@ -321,42 +342,41 @@ void AbsKnob::DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
   }
 }
 
-ExprPtr AbsKnob::DuplFetch(const InstrLvlAbsCnstPtr src,
-                           const InstrLvlAbsPtr dst, const ExprMap& expr_map) {
+ExprPtr DuplFetch(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                  const ExprMap& expr_map) {
   auto f_src = src->fetch();
   if (!f_src) {
     ILA_WARN << "Fetch not set for " << src;
     return NULL;
   }
-  auto f_dst = AbsKnob::Rewrite(f_src, expr_map);
+  auto f_dst = Rewrite(f_src, expr_map);
   dst->SetFetch(f_dst);
   return f_dst;
 }
 
-ExprPtr AbsKnob::DuplValid(const InstrLvlAbsCnstPtr src,
-                           const InstrLvlAbsPtr dst, const ExprMap& expr_map) {
+ExprPtr DuplValid(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                  const ExprMap& expr_map) {
   auto v_src = src->valid();
   if (!v_src) {
     ILA_WARN << "Valid not set for " << src;
     return NULL;
   }
-  auto v_dst = AbsKnob::Rewrite(v_src, expr_map);
+  auto v_dst = Rewrite(v_src, expr_map);
   dst->SetValid(v_dst);
   return v_dst;
 }
 
-void AbsKnob::DuplInit(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
-                       const ExprMap& expr_map) {
+void DuplInit(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+              const ExprMap& expr_map) {
   for (decltype(src->init_num()) i = 0; i != src->init_num(); i++) {
     auto i_src = src->init(i);
-    auto i_dst = AbsKnob::Rewrite(i_src, expr_map);
+    auto i_dst = Rewrite(i_src, expr_map);
     dst->AddInit(i_dst);
   }
 }
 
-InstrPtr AbsKnob::DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
-                            const ExprMap& expr_map,
-                            const CnstIlaMap& ila_map) {
+InstrPtr DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
+                   const ExprMap& expr_map, const CnstIlaMap& ila_map) {
   // create
   auto i_dst = dst->NewInstr(i_src->name().str());
   // rewrite
@@ -373,36 +393,11 @@ InstrPtr AbsKnob::DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
   return i_dst;
 }
 
-void AbsKnob::DuplInstrSeq(const InstrLvlAbsCnstPtr src,
-                           const InstrLvlAbsPtr dst) {
+void DuplInstrSeq(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
   // ILA_WARN << "DuplInstrSeq not implemented yet.";
   // TODO
 }
 
-ExprPtr AbsKnob::DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp) {
-  ILA_ASSERT(inp->is_var()) << "Creating input from non-var Expr.";
-  if (inp->is_bool()) {
-    return m->NewBoolInput(inp->name().str());
-  } else if (inp->is_bv()) {
-    return m->NewBvInput(inp->name().str(), inp->sort()->bit_width());
-  } else {
-    ILA_ASSERT(inp->is_mem()) << "Unknown sort of " << inp;
-    return m->NewMemInput(inp->name().str(), inp->sort()->addr_width(),
-                          inp->sort()->data_width());
-  }
-}
-
-ExprPtr AbsKnob::DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt) {
-  ILA_ASSERT(stt->is_var()) << "Creating state from non-var Expr.";
-  if (stt->is_bool()) {
-    return m->NewBoolState(stt->name().str());
-  } else if (stt->is_bv()) {
-    return m->NewBvState(stt->name().str(), stt->sort()->bit_width());
-  } else {
-    ILA_ASSERT(stt->is_mem()) << "Unkown sort of " << stt;
-    return m->NewMemState(stt->name().str(), stt->sort()->addr_width(),
-                          stt->sort()->data_width());
-  }
-}
+} // namespace AbsKnob
 
 } // namespace ilang
