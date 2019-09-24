@@ -57,7 +57,7 @@ bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m) {
             auto res = CheckCausality(instr, child->instr(k));
 
             ILA_WARN_IF(res && child->instr_seq()->root())
-                << "Multiple entry point of " << child << " " << k;
+                << "Multiple entry of " << child << " - " << child->instr(k);
 
             if (res && !child->instr_seq()->root()) {
               ILA_INFO << "Set " << child->instr(k) << " as entry of " << child;

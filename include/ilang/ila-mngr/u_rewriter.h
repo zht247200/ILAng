@@ -22,14 +22,14 @@ public:
   /// Post-process: update the rewriting rule map.
   void post(const ExprPtr e);
 
-private:
+protected:
   /// Internal rewriting table.
   ExprMap rule_;
 
   /// Rewrite all sorts of Expr.
-  ExprPtr Rewrite(const ExprPtr e) const;
+  virtual ExprPtr Rewrite(const ExprPtr e) const;
   /// Rewrite Operation sorted Expr.
-  ExprPtr RewriteOp(const ExprPtr e) const;
+  virtual ExprPtr RewriteOp(const ExprPtr e) const;
 
 }; // class FuncObjRewrExpr
 
@@ -60,16 +60,17 @@ private:
 }; // FuncObjRewrIla
 
 /// \brief  Function object for flatten ILA tree.
-/// There is currently a problem:
-///   this func obj calls duplInst
-///   which in turn uses rewriteExpr
-///   and rewriteExpr does not change the host of
-///   of state variables, so the flatten expression
-///   still has the host pointed to their original
-///   ILA. This is fine for Verilog Gen, which only
-///   depends on variable names to generate variables
-///   but may not be good enough for other purpose.
 class FuncObjFlatIla {
+
+  /* There is currently a problem:
+  This func obj calls duplInst which in turn uses rewriteExpr and rewriteExpr
+  does not change the host of of state variables, so the flatten expression
+  still has the host pointed to their original ILA. This is fine for Verilog
+  Gen, which only depends on variable names to generate variables but may not be
+  good enough for other purpose.
+    - Hongce
+  */
+
 public:
   /// Type for storing ILA to ILA mapping.
   typedef CnstIlaMap IlaMap;

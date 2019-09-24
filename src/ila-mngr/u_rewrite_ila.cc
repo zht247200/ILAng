@@ -10,7 +10,7 @@ namespace ilang {
 
 InstrLvlAbsPtr FuncObjRewrIla::get(const InstrLvlAbsCnstPtr m) const {
   auto pos = ila_map_.find(m);
-  ILA_ASSERT(pos != ila_map_.end()) << m << " not found";
+  ILA_CHECK(pos != ila_map_.end()) << m << " not found";
   return pos->second;
 }
 

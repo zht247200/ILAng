@@ -13,7 +13,7 @@ using namespace ExprFuse;
 
 ExprPtr FuncObjRewrExpr::get(const ExprPtr e) const {
   auto pos = rule_.find(e);
-  ILA_ASSERT(pos != rule_.end()) << e << " not found";
+  ILA_CHECK(pos != rule_.end()) << e << " not found";
   return pos->second;
 }
 

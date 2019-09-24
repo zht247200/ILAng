@@ -227,6 +227,14 @@ public:
   /// \return pointer to the child-ILA.
   const InstrLvlAbsPtr NewChild(const std::string& name);
 
+  /// \brief Set the fetch function no matter if is already set.
+  /// \param[in] fetch_expr pointer to the fetch function (as an expression).
+  void ForceSetFetch(const ExprPtr fetch_expr);
+
+  /// \brief Set the valid function no matter if is already set.
+  /// \param[in] valid_expr pointer to the valid function (as an expression).
+  void ForceSetValid(const ExprPtr valid_expr);
+
   /// \brief Sanity check for the ILA (e.g. sort marching).
   /// \return True if check pass.
   bool Check() const;

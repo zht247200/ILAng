@@ -108,27 +108,13 @@ void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
 }
 
 void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
-  // sanity check
-  ILA_NOT_NULL(fetch_expr);
-  ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.";
-  // should be the first
-  ILA_ASSERT(!fetch_) << "Fetch function has been assigned.";
-  // simplify
-  auto fetch = Unify(fetch_expr);
-  // set as fetch function
-  fetch_ = fetch;
+  ILA_ASSERT(!fetch_) << "Fetch alraedy defined";
+  ForceSetFetch(fetch_expr);
 }
 
 void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
-  // sanity check
-  ILA_NOT_NULL(valid_expr);
-  ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.";
-  // should be the first
-  ILA_ASSERT(!valid_) << "Valid function has been assigned.";
-  // simplify
-  auto valid = Unify(valid_expr);
-  // set as valid function
-  valid_ = valid;
+  ILA_ASSERT(!valid_) << "Valid already defined";
+  ForceSetValid(valid_expr);
 }
 
 void InstrLvlAbs::AddInstr(const InstrPtr instr) {
@@ -253,6 +239,26 @@ const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
   // register
   AddChild(child);
   return child;
+}
+
+void InstrLvlAbs::ForceSetFetch(const ExprPtr fetch_expr) {
+  // sanity check
+  ILA_NOT_NULL(fetch_expr);
+  ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.";
+  // simplify
+  auto fetch = Unify(fetch_expr);
+  // set as fetch function
+  fetch_ = fetch;
+}
+
+void InstrLvlAbs::ForceSetValid(const ExprPtr valid_expr) {
+  // sanity check
+  ILA_NOT_NULL(valid_expr);
+  ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.";
+  // simplify
+  auto valid = Unify(valid_expr);
+  // set as valid function
+  valid_ = valid;
 }
 
 bool InstrLvlAbs::Check() const {

@@ -15,6 +15,12 @@ bool PassInferChildProgCFG(const InstrLvlAbsPtr& m);
 /// Map the child program (and its entry point) to the parent instruction
 bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m);
 
+/// Rewrite the conditional STORE in the AST.
+bool PassRewriteConditionalStore(const InstrLvlAbsPtr& m);
+
+/// Rewrite the STORE-LOAD pattern in the AST.
+bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m);
+
 }; // namespace ilang
 
 #endif // ILANG_ILA_MNGR_PASS_H__

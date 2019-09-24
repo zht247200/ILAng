@@ -43,24 +43,22 @@ TEST(TestPlainC, AES_128) { GenPlainC("aes", "aes_128.json"); }
 
 TEST(TestPlainC, AES_C) { GenPlainC("aes", "aes_c.json"); }
 
+// TEST(TestPlainC, AES_V) { GenPlainC("aes", "aes_v.json"); }
+
+TEST(TestPlainC, GB_LOW) { GenPlainC("gb", "gb_low.json"); }
+
+TEST(TestPlainC, RBM) { GenPlainC("rbm", "rbm.json"); }
+
+TEST(TestPlainC, OC8051) { GenPlainC("oc", "oc.json"); }
+
 #if 0
 TEST(TestPlainC, AES_V_TOP) { GenPlainC("aes", "aes_v_top.json"); }
 
 TEST(TestPortable, AES_V_CHILD) { SerDes("aes", "aes_v_child.json"); }
 
-TEST(TestPortable, AES_V) { SerDes("aes", "aes_v.json"); }
-
 TEST(TestPortable, AES_C_TOP) { SerDes("aes", "aes_c_top.json"); }
 
 TEST(TestPortable, AES_C_CHILD) { SerDes("aes", "aes_c_child.json"); }
-
-TEST(TestPortable, AES_C) { SerDes("aes", "aes_c.json"); }
-
-TEST(TestPortable, GB_LOW) { SerDes("gb", "gb_low.json"); }
-
-TEST(TestPortable, RBM) { SerDes("rbm", "rbm.json"); }
-
-TEST(TestPortable, OC8051) { SerDes("oc", "oc.json", false); }
 #endif
 
 } // namespace ilang
