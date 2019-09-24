@@ -1,7 +1,7 @@
 /// \file
-/// Source for unrolling ILA execution.
+/// A collection of unroller classes for unrolling ILA execution.
 
-#include <ilang/verification/unroller.h>
+#include <ilang/ila-mngr/u_unroller.h>
 
 #include <map>
 #include <vector>

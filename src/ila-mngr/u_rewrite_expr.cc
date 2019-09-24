@@ -1,14 +1,21 @@
 /// \file
-/// Source for function object for rewriting Expr.
+/// The function object for rewriting Expr.
 
-#include <ilang/verification/rewrite_expr.h>
+#include <ilang/ila-mngr/u_rewriter.h>
 
 #include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/expr_fuse.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
 
 using namespace ExprFuse;
+
+ExprPtr FuncObjRewrExpr::get(const ExprPtr e) const {
+  auto pos = rule_.find(e);
+  ILA_ASSERT(pos != rule_.end()) << e << " not found";
+  return pos->second;
+}
 
 bool FuncObjRewrExpr::pre(const ExprPtr e) const {
   // check rewriting rule to see if defined/visited

@@ -1,8 +1,8 @@
 /// \file
-/// Header for unrolling ILA execution.
+/// A collection of unroller classes for unrolling ILA execution.
 
-#ifndef ILANG_VERIFICATION_UNROLLER_H__
-#define ILANG_VERIFICATION_UNROLLER_H__
+#ifndef ILANG_ILA_MNGR_U_UNROLLER_H__
+#define ILANG_ILA_MNGR_U_UNROLLER_H__
 
 #include <set>
 #include <vector>
@@ -286,4 +286,4 @@ private:
 
 } // namespace ilang
 
-#endif // ILANG_VERIFICATION_UNROLLER_H__
+#endif // ILANG_ILA_MNGR_U_UNROLLER_H__

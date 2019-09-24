@@ -1,7 +1,7 @@
 /// \file
-/// Source for function object for rewriting ILA.
+/// Function objects for rewriting an ILA.
 
-#include <ilang/verification/rewrite_ila.h>
+#include <ilang/ila-mngr/u_rewriter.h>
 
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/util/log.h>

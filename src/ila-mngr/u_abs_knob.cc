@@ -5,9 +5,8 @@
 
 #include <functional>
 
+#include <ilang/ila-mngr/u_rewriter.h>
 #include <ilang/util/log.h>
-#include <ilang/verification/rewrite_expr.h>
-#include <ilang/verification/rewrite_ila.h>
 
 namespace ilang {
 
