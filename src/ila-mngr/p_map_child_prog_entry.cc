@@ -1,66 +1,14 @@
 /// \file
-/// ILA pass - create and map child programs to instructions
+/// Map the child program (and its entry point) to the parent instruction
 
-#include <ilang/ila-pass/p_map_child_prog.h>
+#include <ilang/ila-mngr/pass.h>
 
-#include <ilang/ila/expr_fuse.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/unroller.h>
 
 namespace ilang {
 
-PassMapChildProg::PassMapChildProg() {}
-
-PassMapChildProg::~PassMapChildProg() {}
-
-bool InferCFG(const InstrLvlAbsPtr& m) {
-  ILA_NOT_NULL(m);
-
-  // iterate through child-ILAs
-  for (size_t i = 0; i < m->child_num(); i++) {
-    auto child = m->child(i);
-
-    // check if the child program is defined
-    if (!child->instr_seq()) {
-
-      // check if a can trigger b
-      auto CheckCausality = [=](InstrPtr a, InstrPtr b) {
-        z3::context ctx;
-        z3::solver s(ctx);
-        PathUnroll unroller(ctx);
-
-        // a.decode && a.update -> b.decode
-        auto path = unroller.PathAssn({a});
-        auto decode = unroller.GetZ3Expr(b->decode(), 1);
-        s.add(path && decode);
-
-        auto res = s.check();
-        if (res == z3::sat) {
-          ILA_INFO << a << " -> " << b;
-          child->AddSeqTran(a, b, ExprFuse::BoolConst(true));
-        }
-      };
-
-      // iterate through child-instruction combination
-      for (size_t j = 0; j < child->instr_num(); j++) {
-        for (size_t k = j + 1; k < child->instr_num(); k++) {
-          CheckCausality(child->instr(j), child->instr(k));
-          CheckCausality(child->instr(k), child->instr(j));
-        }
-      }
-    }
-
-    // check if the CFG is inferred
-    ILA_WARN_IF(!child->instr_seq()) << "Fail to infer CFG for " << child;
-
-    // traverse the hierarchy
-    InferCFG(child);
-  }
-
-  return true;
-}
-
-bool MapEntryPoint(const InstrLvlAbsPtr& m) {
+bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
 
   // check if a can trigger b
@@ -135,18 +83,6 @@ bool MapEntryPoint(const InstrLvlAbsPtr& m) {
   }
 
   return true;
-}
-
-bool PassMapChildProg::operator()(const InstrLvlAbsPtr& m) const {
-  ILA_NOT_NULL(m);
-
-  // infer the control flow graph of the child-programs
-  auto res_cfg = InferCFG(m);
-
-  // search for parent instructions that trigger the program and set the root
-  auto res_map = MapEntryPoint(m);
-
-  return res_cfg && res_map;
 }
 
 }; // namespace ilang

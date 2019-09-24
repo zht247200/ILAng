@@ -3,7 +3,7 @@
 
 #include <ilang/target-plainc/ila_to_plainc.h>
 
-#include <ilang/ila-pass/p_map_child_prog.h>
+#include <ilang/ila-mngr/pass.h>
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/target-plainc/plainc_ir.h>
 #include <ilang/util/log.h>
@@ -25,10 +25,13 @@ bool Ila2PlainC::Convert() {
 
   // rewriting - conditional store
 
-  // resolve child-program
-  // under invariants and assumptions, the update implies the child decode
-  auto res_pass_map_child_prog = PassMapChildProg()(m_);
-  // ILA_ASSERT(res_pass_map_child_prog);
+  // opt - infer child program CFG
+  auto res_infer_cfg = PassInferChildProgCFG(m_);
+  ILA_WARN_IF(!res_infer_cfg) << "Fail inferring CFG of child programs";
+
+  // opt - map child programs to the parent instructions
+  auto res_map_entry = PassMapChildProgEntryPoint(m_);
+  ILA_WARN_IF(!res_map_entry) << "Fail mapping child program entries";
 
   // start converting
   auto ir = PlainCIR::New();
