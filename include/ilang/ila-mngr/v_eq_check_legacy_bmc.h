@@ -1,8 +1,8 @@
 /// \file
 /// Header for bounded model checking
 
-#ifndef ILANG_VERIFICATION_LEGACY_BMC_H__
-#define ILANG_VERIFICATION_LEGACY_BMC_H__
+#ifndef ILANG_ILA_MNGR_V_LEGACY_BMC_H__
+#define ILANG_ILA_MNGR_V_LEGACY_BMC_H__
 
 #include <map>
 
@@ -79,4 +79,4 @@ private:
 
 } // namespace ilang
 
-#endif // ILANG_VERIFICATION_LEGACY_BMC_H__
+#endif // ILANG_ILA_MNGR_V_LEGACY_BMC_H__

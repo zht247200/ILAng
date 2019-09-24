@@ -1,7 +1,7 @@
 /// \file
-/// Source for generating verification condition for equivalecne checking.
+/// ILA vs. ILA equivalence checking driver.
 
-#include <ilang/verification/eq_check_crr.h>
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
 
 #include <tuple>
 

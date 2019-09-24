@@ -1,7 +1,7 @@
 /// \file
 /// Source for bounded model checking
 
-#include <ilang/verification/legacy_bmc.h>
+#include <ilang/ila-mngr/v_eq_check_legacy_bmc.h>
 
 #include <ilang/util/log.h>
 #include <ilang/util/z3_helper.h>

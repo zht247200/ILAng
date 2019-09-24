@@ -1,13 +1,14 @@
 /// \file
 /// Unit test for commutating diagram-based equivalence checking
 
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
+
 #include "unit-include/eq_ilas.h"
 #include "unit-include/stream_buffer.h"
 #include "unit-include/util.h"
 #include "z3++.h"
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/ila-mngr/u_unroller.h>
-#include <ilang/verification/eq_check_crr.h>
 
 namespace ilang {
 

@@ -3,9 +3,9 @@
 
 #include <ilang/ila-mngr/v_eq_check.h>
 
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/log.h>
-#include <ilang/verification/eq_check_crr.h>
 
 namespace ilang {
 

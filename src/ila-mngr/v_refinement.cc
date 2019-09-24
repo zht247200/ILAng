@@ -1,7 +1,7 @@
 /// \file
-/// Source for the refinement relation
+/// Refinement relation for ILA vs. ILA equivalence checking.
 
-#include <ilang/ila/comp_ref_rel.h>
+#include <ilang/ila-mngr/v_eq_check_refinement.h>
 
 #include <ilang/ila-mngr/u_abs_knob.h>
 #include <ilang/util/log.h>
