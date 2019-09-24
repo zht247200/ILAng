@@ -1,16 +1,16 @@
 /// \file
 /// The implementation for checking the equivalence of two ILAs.
 
-#include <ilang/ila-handler/eq_check.h>
+#include <ilang/ila-mngr/v_eq_check.h>
 
 #include <ilang/ila/expr_fuse.h>
-#include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/eq_check_crr.h>
 
 namespace ilang {
 
-bool CheckEqSameMicroArch(const Ila& a, const Ila& b, bool update) {
+bool CheckEqSameMicroArch(const InstrLvlAbsPtr& a, const InstrLvlAbsPtr& b,
+                          bool update) {
   auto ma = a.get();
   auto mb = b.get();
 
