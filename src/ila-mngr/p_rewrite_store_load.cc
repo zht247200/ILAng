@@ -10,7 +10,6 @@
 namespace ilang {
 
 class FuncObjStoreStore {
-
 public:
   inline const ExprPtrVec& addr() const { return addr_; }
   inline const ExprPtrVec& data() const { return data_; }
@@ -35,13 +34,12 @@ private:
 
 class FuncObjRewrStoreLoad : public FuncObjRewrExpr {
 public:
-  FuncObjRewrStoreLoad(const ExprMap& rule) : FuncObjRewrExpr(rule) {}
+  FuncObjRewrStoreLoad() : FuncObjRewrExpr({}) {}
 
 private:
   ExprPtr RewriteOp(const ExprPtr e) const {
     // override LOAD op; use default otherwise
-    auto expr_op_uid = GetUidExprOp(e);
-    if (expr_op_uid == AST_UID_EXPR_OP::LOAD) {
+    if (GetUidExprOp(e) == AST_UID_EXPR_OP::LOAD) {
       return RewriteLoad(e);
     } else {
       return FuncObjRewrExpr::RewriteOp(e);
@@ -82,8 +80,7 @@ private:
 bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
 
-  // function object of the rewriting rule
-  auto func = FuncObjRewrStoreLoad({});
+  auto func = FuncObjRewrStoreLoad();
   auto Rewr = [=, &func](const ExprPtr e) {
     if (e) {
       e->DepthFirstVisitPrePost(func);
@@ -92,45 +89,7 @@ bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m) {
     return e;
   };
 
-  // rewrite valid
-  auto new_valid = Rewr(m->valid());
-  if (new_valid) {
-    m->ForceSetValid(new_valid);
-  }
-
-  // rewrite fetch
-  auto new_fetch = Rewr(m->fetch());
-  if (new_fetch) {
-    m->ForceSetFetch(new_fetch);
-  }
-
-  // TODO rewrite init
-
-  // for each instruction
-  for (size_t i = 0; i < m->instr_num(); i++) {
-    auto instr = m->instr(i);
-
-    // rewrite decode
-    auto new_decode = Rewr(instr->decode());
-    if (new_decode) {
-      instr->ForceSetDecode(new_decode);
-    }
-
-    // rewrite updates
-    for (size_t s = 0; s < m->state_num(); s++) {
-      auto new_update = Rewr(instr->update(m->state(s)));
-      if (new_update) {
-        instr->ForceAddUpdate(m->state(s)->name().str(), new_update);
-      }
-    }
-  }
-
-  // traverse the ILA hierarchy
-  for (size_t c = 0; c < m->child_num(); c++) {
-    PassRewriteStoreLoad(m->child(c));
-  }
-
-  return true;
+  return PassRewriteGeneric(m, Rewr);
 }
 
 }; // namespace ilang
