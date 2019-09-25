@@ -16,6 +16,7 @@ namespace ilang {
 void GenPlainC(const std::string& dir, const std::string& file,
                bool check = true) {
   SetToStdErr(true);
+  EnableDebug("PassRewrCondStore");
   auto file_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, dir);
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file);

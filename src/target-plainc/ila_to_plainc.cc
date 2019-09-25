@@ -21,13 +21,13 @@ bool Ila2PlainC::Convert() {
 
   // sanity check -- completeness (optional)
 
-  // rewriting - store-load
-  auto res_rewr_st_ld = PassRewriteStoreLoad(m_);
-  ILA_WARN_IF(!res_rewr_st_ld) << "Fail rewriting STORE-LOAD pattern";
-
   // rewriting - conditional store
   auto res_rewr_cond_st = PassRewriteConditionalStore(m_);
   ILA_WARN_IF(!res_rewr_cond_st) << "Fail rewriting conditional STORE";
+
+  // rewriting - store-load
+  auto res_rewr_st_ld = PassRewriteStoreLoad(m_);
+  ILA_WARN_IF(!res_rewr_st_ld) << "Fail rewriting STORE-LOAD pattern";
 
   // opt - infer child program CFG
   auto res_infer_cfg = PassInferChildProgCFG(m_);
