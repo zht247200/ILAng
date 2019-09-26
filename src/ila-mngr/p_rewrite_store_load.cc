@@ -44,9 +44,8 @@ private:
     // override LOAD op; use default otherwise
     if (GetUidExprOp(e) == AST_UID_EXPR_OP::LOAD) {
       return RewriteLoad(e);
-    } else {
-      return FuncObjRewrExpr::RewriteOp(e);
     }
+    return FuncObjRewrExpr::RewriteOp(e);
   }
 
   ExprPtr RewriteLoad(const ExprPtr e) const {

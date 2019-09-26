@@ -30,7 +30,9 @@ bool PassRewriteGeneric(const InstrLvlAbsPtr& m,
                         std::function<ExprPtr(const ExprPtr)> Rewr);
 
 /// Simplify instruction state updates.
-bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m);
+/// \param[in] m The target ILA.
+/// \param[in] timeout Max time (ms) for each SMT query. (-1 for default)
+bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m, const int& timeout = -1);
 
 }; // namespace ilang
 

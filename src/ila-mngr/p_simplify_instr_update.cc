@@ -20,8 +20,6 @@ bool SimplifyInstrUpdateTemplate(
       auto state_var = m->state(s);
       auto new_update = Simp(m->instr(i)->update(state_var), m->instr(i));
       if (new_update) {
-        ILA_DLOG("PassSimpInstrUpdate")
-            << "Simplify " << m->instr(i) << " update of " << state_var;
         m->instr(i)->ForceAddUpdate(state_var->name().str(), new_update);
       }
     }
@@ -85,7 +83,6 @@ private:
     // check equivalence if not found yet and have a same type
     if (!candidate_ && e->sort() == target_->sort()) {
       if (CheckEqModAssump(e)) {
-        ILA_DLOG("PassSimpInstrUpdate") << "Simplify - equivalent sub-tree";
         candidate_ = e;
       }
     }
@@ -95,7 +92,7 @@ private:
 
 }; // class FuncObjSimpInstrUpdateRedundant
 
-bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m) {
+bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m, const int& timeout) {
   ILA_NOT_NULL(m);
 
   // pattern - equivalent sub-tree modulo valid and decode
@@ -105,19 +102,27 @@ bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m) {
 
     auto valid = host->valid();
     ILA_NOT_NULL(valid);
+
     auto decode = i->decode();
     ILA_NOT_NULL(decode);
 
     auto func = FuncObjEqSubtree(e, ExprFuse::And(valid, decode));
     e->DepthFirstVisitPrePost(func);
-    return func.get(e);
+
+    auto new_update = func.get(e);
+    if (new_update != e) {
+      ILA_DLOG("PassSimpInstrUpdate") << "Equivalent sub-tree of " << i;
+    }
+    return new_update;
   };
 
-  auto res_eq_subtree = SimplifyInstrUpdateTemplate(m, SimpEqSubtree);
+  if (timeout > 0) {
+    z3::set_param("timeout", timeout);
+  }
+  auto res = SimplifyInstrUpdateTemplate(m, SimpEqSubtree);
+  z3::reset_params();
 
-  // pattern - dead branch
-
-  return res_eq_subtree;
+  return res;
 }
 
 }; // namespace ilang

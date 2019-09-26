@@ -19,9 +19,8 @@ private:
     // override memory ITE
     if (e->is_mem() && GetUidExprOp(e) == AST_UID_EXPR_OP::ITE) {
       return RewriteCondMem(e);
-    } else {
-      return FuncObjRewrExpr::RewriteOp(e);
     }
+    return FuncObjRewrExpr::RewriteOp(e);
   }
 
   ExprPtr RewriteCondMem(const ExprPtr e) const {

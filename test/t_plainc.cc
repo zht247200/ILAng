@@ -17,8 +17,8 @@ void GenPlainC(const std::string& dir, const std::string& file,
   SetToStdErr(true);
 
   EnableDebug("PassSimpInstrUpdate");
-  // EnableDebug("PassRewrCondStore");
-  // EnableDebug("PassRewrStoreLoad");
+  EnableDebug("PassRewrCondStore");
+  EnableDebug("PassRewrStoreLoad");
   EnableDebug("PassInferChildProgCFG");
   EnableDebug("PassMapChildProgEntry");
 
