@@ -26,6 +26,11 @@ bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m) {
     auto valid_prev = unroller.GetZ3Expr(b->host()->valid(), 0);
     auto valid_next = unroller.GetZ3Expr(b->host()->valid(), 1);
 
+    s.add(!valid_prev);
+    ILA_WARN_IF(s.check() == z3::unsat)
+        << "Trivial valid " << b->host()->valid();
+    s.reset();
+
     s.add(!valid_prev && path && decode && valid_next);
 
     auto res = s.check();
@@ -60,14 +65,13 @@ bool PassMapChildProgEntryPoint(const InstrLvlAbsPtr& m) {
                 << "Multiple entry of " << child << " - " << child->instr(k);
 
             if (res && !child->instr_seq()->root()) {
+
               ILA_DLOG("PassMapChildProgEntry")
                   << "Set " << child->instr(k) << " as entry of " << child;
-
-              child->instr_seq()->set_root(child->instr(k));
-
               ILA_DLOG("PassMapChildProgEntry")
                   << "Set " << child << " as child-program of " << instr;
 
+              child->instr_seq()->set_root(child->instr(k));
               if (!instr->program()) {
                 instr->set_program(child);
               }
