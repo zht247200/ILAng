@@ -31,13 +31,15 @@ bool PassInferChildProgCFG(const InstrLvlAbsPtr& m) {
 
         auto res = s.check();
         if (res == z3::sat) {
-          ILA_INFO << a << " -> " << b;
+          ILA_DLOG("PassInferChildProgCFG") << a << " -> " << b;
           child->AddSeqTran(a, b, ExprFuse::BoolConst(true));
         }
       };
 
       // iterate through child-instruction combination
       for (size_t j = 0; j < child->instr_num(); j++) {
+        CheckCausality(child->instr(j), child->instr(j));
+
         for (size_t k = j + 1; k < child->instr_num(); k++) {
           CheckCausality(child->instr(j), child->instr(k));
           CheckCausality(child->instr(k), child->instr(j));
