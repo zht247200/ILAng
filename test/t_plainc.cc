@@ -10,13 +10,15 @@
 
 namespace ilang {
 
-#if 1
 // void Check(Ila& a, Ila& b) { CheckIlaEqLegacy(a.get(), b.get()); }
 
 void GenPlainC(const std::string& dir, const std::string& file,
                bool check = true) {
   SetToStdErr(true);
+
   EnableDebug("PassRewrCondStore");
+  EnableDebug("PassRewrStoreLoad");
+
   auto file_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, dir);
   auto ila_file = os_portable_append_dir(file_dir, file);
   auto ila = ImportIlaPortable(ila_file);
@@ -36,7 +38,6 @@ void GenPlainC(const std::string& dir, const std::string& file,
   }
 #endif
 }
-#endif
 
 TEST(TestPlainC, AES) { GenPlainC("aes", "aes.json"); }
 
