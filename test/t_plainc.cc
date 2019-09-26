@@ -16,8 +16,11 @@ void GenPlainC(const std::string& dir, const std::string& file,
                bool check = true) {
   SetToStdErr(true);
 
-  EnableDebug("PassRewrCondStore");
-  EnableDebug("PassRewrStoreLoad");
+  EnableDebug("PassSimpInstrUpdate");
+  // EnableDebug("PassRewrCondStore");
+  // EnableDebug("PassRewrStoreLoad");
+  EnableDebug("PassInferChildProgCFG");
+  EnableDebug("PassMapChildProgEntry");
 
   auto file_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, dir);
   auto ila_file = os_portable_append_dir(file_dir, file);

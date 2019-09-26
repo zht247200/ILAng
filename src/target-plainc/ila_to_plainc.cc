@@ -21,6 +21,10 @@ bool Ila2PlainC::Convert() {
 
   // sanity check -- completeness (optional)
 
+  // simplify instruction updates
+  auto res_simp_instr_update = PassSimplifyInstrUpdate(m_);
+  ILA_WARN_IF(!res_simp_instr_update) << "Fail simplifying instr. updates";
+
   // rewriting - conditional store
   auto res_rewr_cond_st = PassRewriteConditionalStore(m_);
   ILA_WARN_IF(!res_rewr_cond_st) << "Fail rewriting conditional STORE";

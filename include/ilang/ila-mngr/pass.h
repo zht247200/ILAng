@@ -29,6 +29,9 @@ bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m);
 bool PassRewriteGeneric(const InstrLvlAbsPtr& m,
                         std::function<ExprPtr(const ExprPtr)> Rewr);
 
+/// Simplify instruction state updates.
+bool PassSimplifyInstrUpdate(const InstrLvlAbsPtr& m);
+
 }; // namespace ilang
 
 #endif // ILANG_ILA_MNGR_PASS_H__

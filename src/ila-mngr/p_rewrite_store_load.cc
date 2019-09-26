@@ -91,7 +91,7 @@ private:
     //  Ex. LOAD(ITE(x, m1, m2), addr)
     // TODO
 
-    ILA_DLOG("PassRewrStoreLoad") << "Skip unknown pattern " << mem;
+    ILA_DLOG("PassRewrStoreLoad") << "Skip pattern " << mem;
 
     return FuncObjRewrExpr::RewriteOp(e);
   }
@@ -101,10 +101,9 @@ private:
 bool PassRewriteStoreLoad(const InstrLvlAbsPtr& m) {
   ILA_NOT_NULL(m);
 
-  // auto Rewr = [=, &func](const ExprPtr e) {
-  auto Rewr = [=](const ExprPtr e) {
+  auto func = FuncObjRewrStoreLoad();
+  auto Rewr = [=, &func](const ExprPtr e) {
     if (e) {
-      auto func = FuncObjRewrStoreLoad();
       e->DepthFirstVisitPrePost(func);
       return func.get(e);
     }

@@ -88,7 +88,11 @@ private:
     //  Ex. ITE(x, var, STORE(STORE(var, a1, d1), a2, d2))
     // TODO
 
-    ILA_DLOG("PassRewrCondStore") << "Skip Unknwon pattern " << e;
+    // pattern 5 - cascading store
+    //  Ex. ITE(x, STORE(STORE(v, a1, d1), a2, d2), STORE(v, a3, d3))
+    // TODO extend the shorter one ... (any benefit?)
+
+    ILA_DLOG("PassRewrCondStore") << "Skip pattern " << mem1 << " " << mem2;
 
     return FuncObjRewrExpr::RewriteOp(e);
   }
