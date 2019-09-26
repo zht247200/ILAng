@@ -66,7 +66,7 @@ private:
     //  Ex. LOAD(STORE(var, a1, d1), a2)
     //  =>  ITE(a1 == a2, d1, LOAD(var, a2))
     if (IsStore(mem) && !(mem->arg(0)->is_op())) {
-      ILA_DLOG("PassRewrStoreLoad") << "Rewrite loading from single STORE";
+      ILA_DLOG("PassRewrStoreLoad") << "Single STORE - LD(ST(m, a, b), c)";
       auto addr_load = get(e->arg(1));
       auto addr_store = mem->arg(1);
       auto cond = ExprFuse::Eq(addr_load, addr_store);

@@ -40,7 +40,7 @@ private:
     // pattern 0 - identical branch
     //  Ex. ITE(x, m, m)
     if (mem1 == mem2) {
-      ILA_DLOG("PassRewrCondStore") << "Rewrite identical mem branch";
+      ILA_DLOG("PassRewrCondStore") << "Identical branches - ITE(x, m, m)";
       return mem1;
     }
 
@@ -48,7 +48,10 @@ private:
     //  Ex. ITE(x, var, STORE(var, addr, data))
     if (IsStore(mem1) && !mem2->is_op()) {
       if (mem1->arg(0) == mem2) {
-        ILA_DLOG("PassRewrCondStore") << "Rewrite single store or none";
+
+        ILA_DLOG("PassRewrCondStore")
+            << "Single STORE - ITE(x, m, ST(m, a, d))";
+
         auto mem1_addr = mem1->arg(1);
         auto mem1_data = mem1->arg(2);
         auto new_data =
@@ -59,7 +62,10 @@ private:
 
     if (!mem1->is_op() && IsStore(mem2)) {
       if (mem2->arg(0) == mem1) {
-        ILA_DLOG("PassRewrCondStore") << "Rewrite single store or none";
+
+        ILA_DLOG("PassRewrCondStore")
+            << "Single STORE - ITE(x, ST(m, a, d), m)";
+
         auto mem2_addr = mem2->arg(1);
         auto mem2_data = mem2->arg(2);
         auto new_data =
@@ -72,7 +78,10 @@ private:
     //  Ex. ITE(x, STORE(m, a1, d1), STORE(m, a2, d2))
     if (IsStore(mem1) && IsStore(mem2)) {
       if (mem1->arg(0) == mem2->arg(0)) {
-        ILA_DLOG("PassRewrCondStore") << "Rewrite identical store target";
+
+        ILA_DLOG("PassRewrCondStore")
+            << "Identical STORE dest. - ITE(x, ST(m,a,b), ST(m,c,d))";
+
         auto new_addr = ExprFuse::Ite(cond, mem1->arg(1), mem2->arg(1));
         auto new_data = ExprFuse::Ite(cond, mem1->arg(2), mem2->arg(2));
         return ExprFuse::Store(mem1->arg(0), new_addr, new_data);
