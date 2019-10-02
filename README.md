@@ -182,7 +182,7 @@ source init.sh
 ```
 
 to initialize the environment settings. 
-This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3) and [Boolector](https://github.com/Boolector/boolector).
+This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solver [z3](https://github.com/Z3Prover/z3).
 
 ## License
 
