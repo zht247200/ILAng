@@ -31,6 +31,12 @@ class TestVerilogExport;
 class VerilogGeneratorBase {
 public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
+  /// The type of bool value in ila
+  using IlaBoolValType = bool;
+  /// The type of bitvector value in ila
+  using IlaBvValType = BvVal::BvValType;
+  /// The unsigned type of bitvector value in ila
+  using IlaBvValUnsignedType = BvVal::BvValType;
   /// let the test class use this module
   friend class TestVerilogExport;
   /// let VlgVerifTgtGen use this module to generate the wrapper module
@@ -61,6 +67,8 @@ public:
   typedef std::string vlg_name_t;
   /// Type of Verilog statement
   typedef std::string vlg_stmt_t;
+  /// Type of Verilog constants
+  typedef std::string vlg_const_t;
   /// Type of Verilog address
   typedef std::string vlg_addr_t;
   /// Type of Verilog data
@@ -84,8 +92,8 @@ public:
   /// Type of Verilog ITEs statements
   typedef std::vector<vlg_ite_stmt_t> vlg_ite_stmts_t;
   /// Type of the memorys that are going to be created
-  typedef std::tuple<vlg_name_t, int, int>
-      vlg_mem_t; // name addr_width data_width
+  typedef std::tuple<vlg_name_t, int, int, int>
+      vlg_mem_t; // name addr_width data_width entryNum
   /// Type of collection of memorys
   typedef std::map<vlg_name_t, vlg_mem_t> vlg_mems_rec_t;
   /// This is type of an individual write.
@@ -121,7 +129,9 @@ public:
 
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
-
+  /// Type for cacheing the constant
+  // (this is needed because our hash is not fully working)
+  typedef std::map<std::pair<IlaBvValType, unsigned>, vlg_name_t> CnstMap;
   /// Type for memory annotation
   typedef std::map<std::string, bool> memory_export_annotation_t;
 
@@ -151,7 +161,8 @@ public:
         bool gen_start = false, bool pass_name = false, bool rand_init = false,
         bool ExpandMem = false)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(pass_name), reg_random_init(rand_init), expand_mem(ExpandMem) {}
+          pass_node_name(pass_name), reg_random_init(rand_init),
+          expand_mem(ExpandMem) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
                  bool gen_start, bool rand_init, bool ExpandMem)
@@ -238,6 +249,9 @@ protected:
   vlg_stmt_t preheader;
   /// The map to cache the expression (we only need to store the name)
   ExprMap nmap;
+  /// The map to cache the constants (o.w. there will be overhead, as each
+  /// constant may appear multiple times)
+  CnstMap cmap;
 
   /// For traverse a mem expression
   mem_write_list_t current_writes;
@@ -277,6 +291,8 @@ public:
   /// sanitize the name of an expr, so it will generate illegal verilog
   /// identifier
   static vlg_name_t sanitizeName(const ExprPtr& n);
+  /// will force to be hex
+  static vlg_const_t ToVlgNum(IlaBvValType value, unsigned width);
 
 protected:
   /// The id counter
@@ -314,10 +330,10 @@ public:
                     const vlg_stmt_t& fstmt);
   /// record an internal memory
   void add_internal_mem(const vlg_name_t& mem_name, int addr_width,
-                        int data_width);
+                        int data_width, int entry_num);
   /// record an external memory
   void add_external_mem(const vlg_name_t& mem_name, int addr_width,
-                        int data_width);
+                        int data_width, int entry_num);
   /// add an item to the preheader
   void add_preheader(const vlg_stmt_t& stmt);
 
@@ -338,7 +354,7 @@ public:
 
   // --------------------- ANNOTATION INTERFACE ---------------------------- //
   /// add memory annotation, please invoke right after constructor
-  void AnnotateMemory(const memory_export_annotation_t & annotation);
+  void AnnotateMemory(const memory_export_annotation_t& annotation);
 }; // class VerilogGeneratorBase
 
 /// \brief Class of Verilog Generator

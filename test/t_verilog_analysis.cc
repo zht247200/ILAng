@@ -15,7 +15,9 @@
 
 namespace ilang {
 
-TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
+// this will probably create problem as it only init but does no
+// release, removed
+// TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
 
 TEST(TestVerilogAnalysis, BaseFuncNoError) {
   auto fn = std::string(ILANG_TEST_SRC_ROOT) +
@@ -162,6 +164,9 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("i3.a", 15);
     IS_WIDTH("i4.sig", 2);
     IS_WIDTH("i4.a", 5);
+    IS_WIDTH("wn1", 42);
+    IS_WIDTH("wn2", 5);
+    IS_WIDTH("wn3", 42);
   } // end of test4
 }
 
