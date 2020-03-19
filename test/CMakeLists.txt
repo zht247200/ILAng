@@ -83,8 +83,13 @@ package_add_test(${ILANG_TEST_MAIN}
   t_verilog_gen.cc
   t_verilog_mod.cc
   t_vtarget_gen.cc
+  t_inv_extract.cc
   t_z3adapter.cc
   t_z3sanity.cc
+  t_inv_syn.cc
+  t_smt_in.cc
+  t_smt_trans.cc
+  t_inv_obj.cc
 )
 
 if(${ILANG_BUILD_SYNTH})
@@ -118,7 +123,7 @@ add_test(
     ExampleCMakeBuild
   COMMAND
     "${CMAKE_CTEST_COMMAND}"
-      --build-and-test  "${PROJECT_SOURCE_DIR}/starter"
+      --build-and-test  "${CMAKE_CURRENT_SOURCE_DIR}/starter"
                         "${CMAKE_CURRENT_BINARY_DIR}/simple"
       --build-generator "${CMAKE_GENERATOR}"
       --test-command    "${CMAKE_CTEST_COMMAND}"

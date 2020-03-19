@@ -13,6 +13,7 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/mcm/ast_helper.h>
 
 namespace ilang {
 
@@ -64,7 +65,8 @@ std::map<char, std::string> sanitizeTable(
      {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
      {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
      {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
-     {'8', "__EIGHT__"}, {'9', "__NINE__"},  {'$', "__DOLLAR__"}});
+     {'8', "__EIGHT__"}, {'9', "__NINE__"}//,  {'$', "__DOLLAR__"}
+     });
 
 unsigned symbol_cnt = 0;
 static std::string get_symbol_new() {
@@ -82,7 +84,7 @@ VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
       continue;
     }
 
-    if (isalnum(c) || c == '_') {
+    if (isalnum(c) || c == '_' || c == '$') {
       outStr += c;
       continue;
     }
@@ -116,9 +118,11 @@ VerilogGeneratorBase::ToVlgNum(IlaBvValType value, unsigned width) {
     static_assert(sizeof(IlaBvValUnsignedType) == sizeof(IlaBvValType),
                   "IlaBvValUnsignedType in the header needs update to be sync "
                   "with IlaBvValType!");
+    // if width >= sizeof(IlaBvValType) * 8, then this check is actually no use
+    // because any value representable is within the range.
     IlaBvValType maxpos = (width >= sizeof(IlaBvValType) * 8)
                               ? IlaBvValType(-1)
-                              : ((1 << width) - 1);
+                              : (((IlaBvValType)(1) << width) - 1);
     IlaBvValType minneg = 0;
     ILA_ASSERT((minneg <= value && maxpos >= value))
         << "value : " << value << " is out-of-range, min:" << minneg
@@ -444,7 +448,7 @@ void VerilogGenerator::insertInput(const ExprPtr& input) {
   ILA_CHECK(input->is_var());
   // we need to consider the case of an input memory
   if (input->is_mem()) {
-    ILA_CHECK(false) << "Cannot set memory as input"; // FIXME: add wires to
+    ILA_CHECK(false) << "Cannot set memory as input"; // add wires to
                                                       // read from external
     // when in expr parse, remember it is (EXTERNAL mem)
     add_external_mem(sanitizeName(input),         // name
@@ -891,7 +895,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
       ILA_NOT_NULL(expr_op_ptr);
 
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVop, leaves-first ";
-      parseArg(e); // FIXME: if not LOAD, leaf-first
+      parseArg(e); // if not LOAD, leaf-first
       // BTW, you cannot cache the LOAD(STORE/ITE/MEMCONST) pattern
       nmap[e] = translateBvOp(expr_op_ptr);
     } else if (e->is_const()) {
@@ -1126,7 +1130,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
 
       portIdx++;
     }
-  } // accumulate the final expression, if it is external, then no need to
+  } // accumulate the final expression, if it is external, then no need to dp
     // anything here
 
   for (unsigned portIdx = 0; portIdx < max_port_no; ++portIdx) {
@@ -1139,7 +1143,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
     add_assign_stmt(enabWireName, enabStmt[portIdx]);
     // add memory updates in the always block
     if (this_mem_external) {
-      // DO NOTHINGls
+      // DO NOTHING
     } else {
       vlg_stmt_t assignment =
           name + " [ " + addrWireName + " ] " + "<= " + dataWireName;
@@ -1376,6 +1380,21 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
       vlg_name_t result = getVlgFromExpr(update);
       add_ite_stmt(decodeName, sanitizeName(var) + " <= " + result, "");
     } // else
+
+    ExprPtr c, v;
+    if (cfg_.collect_ite_unknown_update && getIteUnknownCondVal(update, c, v)) {
+      auto original_cond_sig = getVlgFromExpr(c);
+      auto sig_name = "__ite_ukn_cond_" + original_cond_sig;
+      auto reg_name = "__ite_ukn_cond_reg_" + original_cond_sig;
+      state_update_ite_unknown.insert(
+        std::make_pair(var->name().str(),
+          state_update_unknown(sig_name)));
+      add_output(sig_name, 1);
+      add_wire(sig_name, 1);
+      add_assign_stmt(sig_name, reg_name);
+      add_ite_stmt(decodeName, reg_name + " <= " + original_cond_sig, "");
+    }
+
   }   // for (size_t idx = 0;  ...
 
   // Func Defs

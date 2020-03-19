@@ -34,10 +34,16 @@
 ### Prerequisites
 
 ILAng requires CMake (3.9.6 or above) and compilers with CXX11 support.
-To install dependencies on Debian-based UNIX:
+To install dependencies on Debian-based Linux:
 
 ```bash
 apt-get install bison flex libboost-all-dev z3 libz3-dev
+```
+
+To install dependencies (except z3) on Fedora-based Linux:
+
+```bash
+yum install bison flex boost boost-python boost-devel
 ```
 
 To install dependencies on OSX:
@@ -47,7 +53,7 @@ brew install bison flex boost boost-python z3
 ```
 
 -   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
--   The [Boost](https://www.boost.org) package is required only for building the synthesis engine.
+-   The [Boost](https://www.boost.org) package is required only if you want to build the synthesis engine.
 
 #### Regression Environments
 
@@ -58,9 +64,9 @@ brew install bison flex boost boost-python z3
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Release |
 | Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.15.2 | 4.8.6 | 1.65  | 3.0.4 | 2.6.4  | Release |
-| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.6 | 1.71  | 3.4.2 | 2.5.35 | Debug   |
-| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.6 | 1.71  | 3.4.2 | 2.5.35 | Release |
-| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.6 | 1.71  | 3.4.2 | 2.5.35 | Release |
+| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Debug   |
+| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.16.2 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Release |
+| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.16.2 | 4.8.7 | 1.72  | 3.5.0 | 2.5.35 | Release |
 | Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.6 | -     | 3.3.2 | 2.6.4  | Release |
 
 ### Default Build
@@ -73,7 +79,7 @@ cmake ..
 make
 ```
 
-If you are using git older than `1.8.4`, init the submodule before configuration:
+If you are using git older than `1.8.4`, init the submodule from root and disable config-time submodule update:
 ```bash
 git submodule update --init --recursive
 mkdir -p build && cd build
@@ -111,6 +117,8 @@ void foo () {
   auto m = ilang::Ila("new_ila_model");
 }
 ```
+
+An example can be found in the template repo [PrincetonUniversity/template-ila](https://github.com/PrincetonUniversity/template-ila).
 
 ### External
 
@@ -174,8 +182,6 @@ endif()
 ## Docker Image
 
 [![docker-io](http://dockeri.co/image/byhuang/ilang)](https://hub.docker.com/r/byhuang/ilang)
-[![docker-image](https://images.microbadger.com/badges/image/byhuang/ilang.svg)](https://microbadger.com/images/byhuang/ilang "Get your own image badge on microbadger.com")
-[![docker-version](https://images.microbadger.com/badges/version/byhuang/ilang.svg)](https://microbadger.com/images/byhuang/ilang "Get your own version badge on microbadger.com")
 
 An docker image with the ILAng platform and all dependencies can be fetched from [Docker Hub](https://hub.docker.com/r/byhuang/ilang).
 
@@ -198,7 +204,7 @@ This docker image also contains the model checker [CoSA](https://github.com/cris
 
 ILAng is licensed under the [MIT license](https://opensource.org/licenses/MIT):
 
-Copyright © 2018-2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
+Copyright © 2018 Princeton University
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -232,8 +238,14 @@ Copyright (c) 2013-2019 Niels Lohmann.
 ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
 Copyright (c) 2016 Ben Marshall.
 
+ILAng uses the [VCD parser](https://github.com/ben-marshall/verilog-vcd-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-vcd-parser/blob/master/LICENSE.txt).
+Copyright (c) 2018 Ben Marshall.
+
+ILAng uses the [SMT parser](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html), which is licensed under the [MIT License](https://es-static.fbk.eu/people/griggio/misc/smtlib2parser.html).
+Copyright (c) 2010 Alberto Griggio.
+
 ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
-Copyright (c) 2016 Princeton University ILA Team.
+Copyright (c) 2016 Princeton University.
 
 ## Contributing
 

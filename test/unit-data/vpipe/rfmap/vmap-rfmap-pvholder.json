@@ -15,12 +15,17 @@
   	 "dummy_rf_data":"**KEEP**"
   },
 
-  "post-value-holder": {
-    "r0_pvholder" : {
-      "cond": "#stage_tracker# == 1",
+  "value-holder": {
+    "r0_pvholder" : [ {
+      "cond": "#stage_tracker# == 1 && 1 == 0",
       "val":"m1.registers[0]",
-      "width":8
+      "width":"auto"
     },
+    {
+      "cond": "#stage_tracker# == 1 && 1 == 1",
+      "val":"m1.registers[0]"
+    }
+    ],
     "r1_pvholder" : {
       "cond": "#stage_tracker# == 1",
       "val":"m1.registers[1]",
@@ -56,6 +61,19 @@
          "end"],
       "defs" :[ ["ref_test", 2, "reg"] ],
       "refs" :[ "m1.registers[0]" ]
+    },
+    
+    // a monitor that always exists
+    "delay_wb_write"  : {
+      "verilog":
+      [ "always @(posedge clk) begin",
+        "  delay_wb_write <= m1.ex_wb_val;",
+        "end"
+      ],
+      "defs" :[ ["delay_wb_write", 8, "reg"] ],
+      "refs" :[ "m1.ex_wb_val" ],
+      "keep-for-invariants" : true
     }
+
   }// end of monitor
 }
